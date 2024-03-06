@@ -1,0 +1,11 @@
+[tool.isort]
+profile = "black"
+line_length = 79
+
+[tool.black]
+line-length = 79
+
+# [tool.mypy]
+# namespace_packages = true
+# explicit_package_bases = true
+# mypy_path = "src/python"

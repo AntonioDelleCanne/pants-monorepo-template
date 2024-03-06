@@ -1,0 +1,88 @@
+[GLOBAL]
+pants_version = "2.19"
+tag = ["-exclude"]
+backend_packages = [
+  "pants.backend.docker",
+  "pants.backend.docker.lint.hadolint",
+  "pants.backend.awslambda.python",
+  "pants.backend.python",
+  "pants.backend.python.lint.autoflake",
+  "pants.backend.python.lint.black",
+  "pants.backend.python.lint.docformatter",
+  "pants.backend.python.lint.flake8",
+  "pants.backend.python.lint.isort",
+  "pants.backend.python.typecheck.mypy",
+  "pants.backend.shell",
+  "pants.backend.shell.lint.shellcheck",
+  "pants.backend.shell.lint.shfmt",
+  "pants.backend.experimental.python",
+]
+
+pants_ignore = [
+  ".*/",
+  "/dist/",
+  "__pycache__",
+  "/scripts/",
+  "/ignore/",
+  "/notebooks/",
+  "src/python/apps/idp_labeling_airflow/docker_compose/config",
+  "src/python/apps/idp_labeling_airflow/docker_compose/logs",
+]
+pantsd_max_memory_usage = "6GiB"
+keep_sandboxes = "on_failure" # "always" | "on_failure" | "never"
+local_execution_root_dir = ".tmp/pants_local"
+
+[anonymous-telemetry]
+enabled = false
+
+[source]
+root_patterns = ['/src/lib/*/', '/src/apps/*/', '/scripts/']
+
+[python]
+# We use a narrow interpreter constraint to ensure that Python PEX'es will be executable by our
+# selected Docker base image, `python:3.9`.
+interpreter_constraints = ["==3.9.*"]
+default_resolve = "python-default"
+enable_resolves = true
+# enable_lockfile_targets = false
+
+[python.resolves]
+data_science = "3rdparty/python/data_science.lock"
+lambda = "3rdparty/python/lambda.lock"
+idp_gpt_reconciliation = "3rdparty/python/idp_gpt_reconciliation.lock"
+python-default = "3rdparty/python/python-default.lock"
+# to remove / revise
+ocr = "src/python/apps/ocr/ocr.lock"
+idp_cvat_labeling = "src/python/apps/idp_cvat_labeling/idp_cvat_labeling.lock"
+idp_labeling_airflow = "src/python/apps/idp_labeling_airflow/idp_labeling_airflow.lock"
+
+[docker]
+env_vars = ["DOCKER_CONFIG=%(homedir)s/.docker"]
+# build_args=["DYNAMIC_TAG"]
+# image_tags=["1.0-{build_args.DYNAMIC_TAG}"]
+
+# [test]
+# output = "all"
+# extra_env_vars = ["VAR1", "VAR2=hardcoded_value"]
+# execution_slot_var = "PANTS_EXECUTION_SLOT"
+
+# [python-protobuf]
+# mypy_plugin = true
+
+[lambdex]
+layout = "zip"
+
+[pytest]
+args = ["--import-mode=importlib", "-m", "'not ignore'"]
+# args = ["--import-mode=importlib", "-m", "'not slow'", "-m", "'not paid'"]
+# args = ["--import-mode=importlib", "-m", "'dev'"]
+
+
+[python-infer]
+use_rust_parser = true
+
+[black]
+args = ["--line-length=79"]
+
+[flake8]
+args = ["--max-line-length=79"]
